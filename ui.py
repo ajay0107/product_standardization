@@ -338,7 +338,6 @@ if not st.session_state.file_processed:
             )
         
         st.session_state.file_processed = True
-        st.rerun()
     else:
         st.warning("⚠️ Please upload a CSV file to proceed.")
 if st.session_state.file_processed:
