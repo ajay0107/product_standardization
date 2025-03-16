@@ -259,6 +259,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+def clear_session():
+    # Clear all items from session state
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+
+# Initialize session state
+if 'file_processed' not in st.session_state:
+    st.session_state.file_processed = False
+
 # Page title
 st.markdown("<div class='stTitle'>Product Data Enhancement Tool</div>", unsafe_allow_html=True)
 st.markdown("<div class='stSubtitle'>Upload your product CSV file to process and enhance product data</div>", unsafe_allow_html=True)
@@ -273,23 +282,17 @@ st.sidebar.info("📌 Upload a CSV file containing product names (and descriptio
 
 # Upload section
 st.markdown("<div class='upload-box'>📤 Drag & Drop or Click to Upload CSV File</div>", unsafe_allow_html=True)
-uploaded_file = st.file_uploader("", type=["csv"])
+if not st.session_state.file_processed:
+    uploaded_file = st.file_uploader("", type=["csv"])
 
-if uploaded_file is not None:
-    # Reset processing status if a new file is uploaded
-    if "last_uploaded_file" not in st.session_state or st.session_state["last_uploaded_file"] != uploaded_file.name:
-        st.session_state["file_processed"] = False
-        st.session_state["processed_df"] = None  # Clear previous processed data
-        st.session_state["last_uploaded_file"] = uploaded_file.name
+    if uploaded_file is not None:
+        with st.spinner("Reading CSV file... Please wait!"):
+            df = pd.read_csv(uploaded_file)
+        st.success(f"✅ {uploaded_file.name} uploaded successfully!")
 
-    with st.spinner("Reading CSV file... Please wait!"):
-        df = pd.read_csv(uploaded_file)
-    st.success(f"✅ {uploaded_file.name} uploaded successfully!")
-
-    # Show Data Preview
-    st.subheader("📌 Uploaded Data Preview")    
-    st.dataframe(df.head())
-    if not st.session_state["file_processed"]:
+        # Show Data Preview
+        st.subheader("📌 Uploaded Data Preview")    
+        st.dataframe(df.head())
         if use_case == "Standardize Product Names":
             # Processing message
             with st.spinner("Processing Data... Please wait!"):
@@ -333,19 +336,16 @@ if uploaded_file is not None:
                 file_name=output_file,
                 mime="text/csv"
             )
-        # ✅ Mark the file as processed
-        st.session_state["file_processed"] = True
-    else:
-        st.warning("⚠️ This file has already been processed. Please upload a new file to process again.")
-    # ✅ Process Another File Button (Resets and refreshes the app)
-    if st.button("🔄 Process Another File"):
-        # ✅ Reset all session state variables
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]  
-
-        # ✅ Reload the app as if it was just started
-        st.experimental_set_query_params()  # Clears URL parameters if any
+        
+        st.session_state.file_processed = True
         st.rerun()
-
-else:
-    st.warning("⚠️ Please upload a CSV file to proceed.")
+    else:
+        st.warning("⚠️ Please upload a CSV file to proceed.")
+if st.session_state.file_processed:
+    # Display processed content
+    st.success("File processed successfully!")
+    
+    # Add reset button
+    if st.button("Process Another File"):
+        clear_session()
+        st.rerun()
