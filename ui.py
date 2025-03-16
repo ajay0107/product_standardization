@@ -180,6 +180,11 @@ def process_dish_data(df):
 
 # Set page configuration
 st.set_page_config(page_title="Product Data Enhancement", layout="wide")
+# Initialize session state to track file processing status
+if "file_processed" not in st.session_state:
+    st.session_state["file_processed"] = False
+if "processed_df" not in st.session_state:
+    st.session_state["processed_df"] = None
 
 # Custom CSS with sidebar-specific styling
 st.markdown("""
@@ -271,6 +276,12 @@ st.markdown("<div class='upload-box'>📤 Drag & Drop or Click to Upload CSV Fil
 uploaded_file = st.file_uploader("", type=["csv"])
 
 if uploaded_file is not None:
+    # Reset processing status if a new file is uploaded
+    if "last_uploaded_file" not in st.session_state or st.session_state["last_uploaded_file"] != uploaded_file.name:
+        st.session_state["file_processed"] = False
+        st.session_state["processed_df"] = None  # Clear previous processed data
+        st.session_state["last_uploaded_file"] = uploaded_file.name
+
     with st.spinner("Reading CSV file... Please wait!"):
         df = pd.read_csv(uploaded_file)
     st.success(f"✅ {uploaded_file.name} uploaded successfully!")
@@ -278,51 +289,59 @@ if uploaded_file is not None:
     # Show Data Preview
     st.subheader("📌 Uploaded Data Preview")    
     st.dataframe(df.head())
+    if not st.session_state["file_processed"]:
+        if use_case == "Standardize Product Names":
+            # Processing message
+            with st.spinner("Processing Data... Please wait!"):
+                st.subheader("🚀 Standardizing Product Names...")
+                st.info("AI Model is analyzing and standardizing product data...")
+                std_prod_nm_output_df = create_standardized_prod_names(df)
 
-    if use_case == "Standardize Product Names":
-        # Processing message
-        with st.spinner("Processing Data... Please wait!"):
-            st.subheader("🚀 Standardizing Product Names...")
-            st.info("AI Model is analyzing and standardizing product data...")
-            std_prod_nm_output_df = create_standardized_prod_names(df)
+            st.subheader("📊 Standardized Product Data Preview")
+            st.dataframe(std_prod_nm_output_df.head())  # Replace with actual processed data
 
-        st.subheader("📊 Standardized Product Data Preview")
-        st.dataframe(std_prod_nm_output_df.head())  # Replace with actual processed data
+            # Download processed data button
+            st.subheader("📥 Download Standardized Product Data")
+            output_file = "processed_data.csv"
+            df.to_csv(output_file, index=False)
 
-        # Download processed data button
-        st.subheader("📥 Download Standardized Product Data")
-        output_file = "processed_data.csv"
-        df.to_csv(output_file, index=False)
+            st.download_button(
+                label="📩 Download Standardized Product Data CSV",
+                data=df.to_csv(index=False),
+                file_name=output_file,
+                mime="text/csv"
+            )
+        
+        elif use_case == "Extract Dish Attributes":
+            # Processing message
+            with st.spinner("Processing Data... Please wait!"):
+                st.subheader("🚀 Extracting Dish Attributes...")
+                st.info("AI Model is analyzing and extracting dish attributes...")
+                extract_attributes_df = process_dish_data(df)
 
-        st.download_button(
-            label="📩 Download Standardized Product Data CSV",
-            data=df.to_csv(index=False),
-            file_name=output_file,
-            mime="text/csv"
-        )
-    
-    elif use_case == "Extract Dish Attributes":
-        # Processing message
-        with st.spinner("Processing Data... Please wait!"):
-            st.subheader("🚀 Extracting Dish Attributes...")
-            st.info("AI Model is analyzing and extracting dish attributes...")
-            extract_attributes_df = process_dish_data(df)
+            st.subheader("📊 Dishes Attributes Data Preview")
+            st.dataframe(extract_attributes_df.head())  # Replace with actual processed data
 
-        st.subheader("📊 Dishes Attributes Data Preview")
-        st.dataframe(extract_attributes_df.head())  # Replace with actual processed data
+            # Download processed data button
+            st.subheader("📥 Download Dishes Attributes Data")
+            output_file = "dish_attributes_data.csv"
+            df.to_csv(output_file, index=False)
 
-        # Download processed data button
-        st.subheader("📥 Download Dishes Attributes Data")
-        output_file = "dish_attributes_data.csv"
-        df.to_csv(output_file, index=False)
-
-        st.download_button(
-            label="📩 Download Dishes Attributes Data CSV",
-            data=df.to_csv(index=False),
-            file_name=output_file,
-            mime="text/csv"
-        )
+            st.download_button(
+                label="📩 Download Dishes Attributes Data CSV",
+                data=df.to_csv(index=False),
+                file_name=output_file,
+                mime="text/csv"
+            )
+        # ✅ Mark the file as processed
+        st.session_state["file_processed"] = True
+    else:
+        st.warning("⚠️ This file has already been processed. Please upload a new file to process again.")
+    # ✅ Process Another File Button (Resets and refreshes the app)
     if st.button("🔄 Process Another File"):
-        st.experimental_rerun()  # Refresh the app
+        st.session_state["file_processed"] = False
+        st.session_state["processed_df"] = None
+        st.session_state["last_uploaded_file"] = None
+        st.experimental_rerun()
 else:
-    st.markdown("<div class='custom-warning'>⚠️ Please upload a CSV file to proceed.</div>", unsafe_allow_html=True)
+    st.warning("⚠️ Please upload a CSV file to proceed.")
