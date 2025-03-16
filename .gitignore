@@ -1,0 +1,22 @@
+# Ignore Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment files
+.env
+.venv/
+
+# Ignore logs and temp files
+*.log
+*.tmp
+.DS_Store
+
+# Ignore IDE/Editor files
+.vscode/
+.idea/
+*.swp
+
+# Ignore node_modules (if applicable)
+node_modules/
