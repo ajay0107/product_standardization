@@ -129,12 +129,12 @@ def extract_dish_attributes_genai(description):
 
         result_text = response.choices[0].message.content.strip()
         # Remove the markdown code block markers (```json and ```)
+        result_text = result_text.replace("```json", "").replace("```", "").strip()
         clean_json = result_text.strip("```json").strip("```").strip()
 
         # Convert the cleaned JSON string into a Python dictionary
         try:
             dish_attributes = json.loads(clean_json)
-            print(dish_attributes)  # Output as a Python dictionary
             return dish_attributes
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
@@ -176,7 +176,7 @@ def process_dish_data(df):
         df.at[index, "cooking_method"] = cooking_method
         df.at[index, "dietary_labels"] = dietary_labels
     
-        return df
+    return df
 
 # Set page configuration
 st.set_page_config(page_title="Product Data Enhancement", layout="wide")
@@ -261,7 +261,7 @@ st.markdown("<div class='stSubtitle'>Upload your product CSV file to process and
 # Sidebar for use case selection
 st.sidebar.title("Select Use Case")
 use_case = st.sidebar.radio("", ["Standardize Product Names", "Extract Food Attributes"])
-
+print(f"my use case is: {use_case}")
 st.sidebar.markdown("---")
 st.sidebar.subheader("Instructions")
 st.sidebar.info("📌 Upload a CSV file containing product names (and descriptions for attributes). The tool will process and return an enhanced dataset.")
@@ -300,6 +300,7 @@ if uploaded_file is not None:
             file_name=output_file,
             mime="text/csv"
         )
+    
     elif use_case == "Extract Dish Attributes":
         # Processing message
         with st.spinner("Processing Data... Please wait!"):
