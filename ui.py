@@ -6,6 +6,7 @@ import os
 import time
 from openai import OpenAI
 from dotenv import load_dotenv
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -86,6 +87,96 @@ def create_standardized_prod_names(df):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
+def extract_dish_attributes_genai(description):
+    prompt = f"""
+    You are an AI that extracts structured attributes from dish descriptions.
+
+    ### Task:
+    Analyze the given dish description and extract the following structured attributes:
+
+    1. **cuisine** - The type of cuisine (e.g., Italian, Indian, Mexican, Japanese).
+    2. **main_ingredients** - A list of key ingredients (e.g., chicken, tomato, garlic).
+    3. **cooking_method** - The main cooking technique used (e.g., grilled, fried, baked, boiled).
+    4. **dietary_labels** - Relevant dietary labels (e.g., vegetarian, vegan, gluten-free, non-vegetarian).
+
+    ### Input:
+    Dish Description: "{description}"
+
+    ### Output Format:
+    Respond with a valid JSON object only. Do **not** include any other text before or after the JSON. 
+    The response should follow this exact format:
+
+    JSON format
+    
+        "cuisine": "Italian",
+        "main_ingredients": ["pasta", "tomato sauce", "cheese"],
+        "cooking_method": "baked",
+        "dietary_labels": ["vegetarian"]
+    
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "developer", "content": "You are a food attribute extractor."},
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
+        ) 
+
+        result_text = response.choices[0].message.content.strip()
+        # Remove the markdown code block markers (```json and ```)
+        clean_json = result_text.strip("```json").strip("```").strip()
+
+        # Convert the cleaned JSON string into a Python dictionary
+        try:
+            dish_attributes = json.loads(clean_json)
+            print(dish_attributes)  # Output as a Python dictionary
+            return dish_attributes
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return {"cuisine": "", "main_ingredients": "", "cooking_method": "", "dietary_labels": ""}
+
+    except Exception as e:
+        print(f"Error: {e}")
+        out = {"cuisine": "", "main_ingredients": "", "cooking_method": "", "dietary_labels": ""}
+        return out
+
+def process_dish_data(df):
+    """
+    Reads a CSV with 'dish_name' and 'description',
+    extracts attributes using GenAI, and saves output with an additional 'attributes' column.
+    """
+    # Load CSV
+    df["cuisine"]= ""
+    df["main_ingredients"]= ""
+    df["cooking_method"]= ""
+    df["dietary_labels"]= ""
+
+    # Ensure required columns exist
+    if "description" not in df.columns or "dish_name" not in df.columns:
+        raise ValueError("CSV must contain 'dish_name' and 'description' columns.")
+
+    # Extract attributes for each dish using GPT-4
+    for index, row in df.iterrows():
+        description = row["description"]
+        dish_attributes = extract_dish_attributes_genai(description)
+        cuisine = dish_attributes.get("cuisine", "")
+        main_ingredients = dish_attributes.get("main_ingredients", "")
+        main_ingredients = ",".join(main_ingredients)
+        cooking_method = dish_attributes.get("cooking_method", "")
+        dietary_labels = dish_attributes.get("dietary_labels", "")
+        dietary_labels = ",".join(dietary_labels)
+
+        df.at[index, "cuisine"] = cuisine
+        df.at[index, "main_ingredients"] = main_ingredients
+        df.at[index, "cooking_method"] = cooking_method
+        df.at[index, "dietary_labels"] = dietary_labels
+    
+        return df
 
 # Set page configuration
 st.set_page_config(page_title="Product Data Enhancement", layout="wide")
@@ -188,26 +279,47 @@ if uploaded_file is not None:
     st.subheader("📌 Uploaded Data Preview")    
     st.dataframe(df.head())
 
-    # Processing message
-    with st.spinner("Processing Data... Please wait!"):
-        st.subheader("🚀 Standardizing Product Names...")
-        st.info("AI Model is analyzing and standardizing product data...")
-        std_prod_nm_output_df = create_standardized_prod_names(df)
+    if use_case == "Standardize Product Names":
+        # Processing message
+        with st.spinner("Processing Data... Please wait!"):
+            st.subheader("🚀 Standardizing Product Names...")
+            st.info("AI Model is analyzing and standardizing product data...")
+            std_prod_nm_output_df = create_standardized_prod_names(df)
 
-    st.subheader("📊 Standardized Product Data Preview")
-    st.dataframe(std_prod_nm_output_df.head())  # Replace with actual processed data
+        st.subheader("📊 Standardized Product Data Preview")
+        st.dataframe(std_prod_nm_output_df.head())  # Replace with actual processed data
 
-    # Download processed data button
-    st.subheader("📥 Download Standardized Product Data")
-    output_file = "processed_data.csv"
-    df.to_csv(output_file, index=False)
+        # Download processed data button
+        st.subheader("📥 Download Standardized Product Data")
+        output_file = "processed_data.csv"
+        df.to_csv(output_file, index=False)
 
-    st.download_button(
-        label="📩 Download Standardized Product Data CSV",
-        data=df.to_csv(index=False),
-        file_name=output_file,
-        mime="text/csv"
-    )
+        st.download_button(
+            label="📩 Download Standardized Product Data CSV",
+            data=df.to_csv(index=False),
+            file_name=output_file,
+            mime="text/csv"
+        )
+    elif use_case == "Extract Dish Attributes":
+        # Processing message
+        with st.spinner("Processing Data... Please wait!"):
+            st.subheader("🚀 Extracting Dish Attributes...")
+            st.info("AI Model is analyzing and extracting dish attributes...")
+            extract_attributes_df = process_dish_data(df)
 
+        st.subheader("📊 Dishes Attributes Data Preview")
+        st.dataframe(extract_attributes_df.head())  # Replace with actual processed data
+
+        # Download processed data button
+        st.subheader("📥 Download Dishes Attributes Data")
+        output_file = "dish_attributes_data.csv"
+        df.to_csv(output_file, index=False)
+
+        st.download_button(
+            label="📩 Download Dishes Attributes Data CSV",
+            data=df.to_csv(index=False),
+            file_name=output_file,
+            mime="text/csv"
+        )
 else:
     st.markdown("<div class='custom-warning'>⚠️ Please upload a CSV file to proceed.</div>", unsafe_allow_html=True)

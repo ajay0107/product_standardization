@@ -1,0 +1,21 @@
+dish_name,description,cuisine,main_ingredients,cooking_method,dietary_labels
+Margherita Pizza,"Classic Italian pizza with tomato sauce, mozzarela cheese, and basl.  🍕",Italian,"tomato sauce,mozzarella cheese,basil",baked,vegetarian
+Chicken Biryani,"Aromatic rice dish with tender ckn, saffron, and mixed spicess.",Indian,"rice,chicken,saffron,spices",cooked,non-vegetarian
+Pad Thai,"Stir-fried rice noodles with shrimps tofu, bean sprout, eggs & crushed peanutts.",Thai,"rice noodles,shrimp,tofu,bean sprout,eggs,peanuts",stir-fried,non-vegetarian
+Caesar Salad,"Fresh romaine lettace, croutons, parmsean cheese & a tangy dressing.",,"romaine lettuce,croutons,parmesan cheese,dressing",,vegetarian
+Sushi Platter,"Assorted sushi rolls, includng tuna, salmon, avocado, and sesame seeds. 🍣",Japanese,"tuna,salmon,avocado,sesame seeds",raw,non-vegetarian
+Butter Chicken,"Creamy tomato-based curry with juicy chiken, best served with naan or rice.",Indian,"chicken,tomato",curry,non-vegetarian
+Veggie Burger,"Grilled vegetabls patty with letuce, tomato, and a spicy mayo.",American,"vegetables,lettuce,tomato,spicy mayo",grilled,vegetarian
+Pasta Alfredo,"Italian white sauce pasta with creamy parmesan, garlic, and chickn or shrimp.",Italian,"pasta,parmesan,garlic,chicken,shrimp",cooked,non-vegetarian
+Tacos Al Pastor,"Mexican tacos with marinated pork, pineaple, onions, and cilantro. 🌮",Mexican,"pork,pineapple,onions,cilantro",marinated,non-vegetarian
+Miso Soup,"Traditional Japanse soup with miso paste, seaweed, tofu, and grn onions.",Japanese,"miso paste,seaweed,tofu,green onions",boiled,vegetarian
+Paneer Tikka,Grilled cotage cheese cubes marinated in spicy yogurt and served with mint chutney.,Indian,"cottage cheese,yogurt,mint",grilled,vegetarian
+Ramen Bowl,"Japanese noodle soup with pork, soft-boiled egg, seawead, and broth flavrs.",Japanese,"noodle,pork,egg,seaweed,broth",boiled,non-vegetarian
+Chow Mein,"Stir-fry noodles with cabbage, bell pepers, and soy sauce, servd hot.",Asian,"noodles,cabbage,bell peppers,soy sauce",stir-fried,vegan
+BBQ Ribs,Slow-cooked pork ribs glazed with BBQ sauce and servd with colslaw.,American,"pork ribs,BBQ sauce,coleslaw",slow-cooked,non-vegetarian
+Falafel Wrap,"Middle Eastn wrap with deep-fried chickpea balls, tahini sauce, and fresh veggies.",Middle Eastern,"chickpea,tahini sauce,fresh veggies",deep-fried,vegetarian
+Greek Salad,"Feta chees, olives, cucmber, tomatoes, onion, & oregano dressing.",Mediterranean,"feta cheese,olives,cucumber,tomatoes,onion,oregano",none,vegetarian
+Samosa,Crispy fried pstry filled with spiced potaoes and peas.,Indian,"potatoes,peas,pastry",fried,vegetarian
+Fish and Chips,Deep-fried cod fillet with crispy potato fries & tartar sause.,British,"cod fillet,potato,tartar sauce",deep-fried,non-vegetarian
+Shawarma,Slow-roasted meat wrapped in pita with garic sauce and pickls.,Middle Eastern,"meat,pita,garlic sauce,pickles",slow-roasted,non-vegetarian
+Lasagna,"Layered pasta dish with meat sace, cheese, and bechmel sauce.",Italian,"pasta,meat sauce,cheese,bechamel sauce",baked,non-vegetarian
