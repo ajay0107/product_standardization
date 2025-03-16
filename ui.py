@@ -322,5 +322,7 @@ if uploaded_file is not None:
             file_name=output_file,
             mime="text/csv"
         )
+    if st.button("🔄 Process Another File"):
+        st.experimental_rerun()  # Refresh the app
 else:
     st.markdown("<div class='custom-warning'>⚠️ Please upload a CSV file to proceed.</div>", unsafe_allow_html=True)
