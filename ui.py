@@ -260,7 +260,7 @@ st.markdown("<div class='stSubtitle'>Upload your product CSV file to process and
 
 # Sidebar for use case selection
 st.sidebar.title("Select Use Case")
-use_case = st.sidebar.radio("", ["Standardize Product Names", "Extract Food Attributes"])
+use_case = st.sidebar.radio("", ["Standardize Product Names", "Extract Dish Attributes"])
 print(f"my use case is: {use_case}")
 st.sidebar.markdown("---")
 st.sidebar.subheader("Instructions")
