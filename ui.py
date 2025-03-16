@@ -339,9 +339,13 @@ if uploaded_file is not None:
         st.warning("⚠️ This file has already been processed. Please upload a new file to process again.")
     # ✅ Process Another File Button (Resets and refreshes the app)
     if st.button("🔄 Process Another File"):
-        st.session_state["file_processed"] = False
-        st.session_state["processed_df"] = None
-        st.session_state["last_uploaded_file"] = None
+        # ✅ Reset all session state variables
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]  
+
+        # ✅ Reload the app as if it was just started
+        st.experimental_set_query_params()  # Clears URL parameters if any
         st.rerun()
+
 else:
     st.warning("⚠️ Please upload a CSV file to proceed.")
