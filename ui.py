@@ -342,6 +342,6 @@ if uploaded_file is not None:
         st.session_state["file_processed"] = False
         st.session_state["processed_df"] = None
         st.session_state["last_uploaded_file"] = None
-        st.experimental_rerun()
+        st.rerun()
 else:
     st.warning("⚠️ Please upload a CSV file to proceed.")
